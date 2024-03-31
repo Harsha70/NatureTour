@@ -1,10 +1,10 @@
 // const fs = require('fs');
-const Tour = require('../models/tourModel');
-const APIFeatures = require('../utils/apiFeatures');
+const Tour = require("../models/tourModel");
+const APIFeatures = require("../utils/apiFeatures");
 exports.aliasTopTours = (req, res, next) => {
-  req.query.limit = '5';
-  req.query.sort = '-ratingsAverage,price';
-  req.query.fields = 'name,price,ratingAverage,summary,difficuilty';
+  req.query.limit = "5";
+  req.query.sort = "-ratingsAverage,price";
+  req.query.fields = "name,price,ratingAverage,summary,difficuilty";
   next();
 };
 
@@ -34,66 +34,79 @@ exports.aliasTopTours = (req, res, next) => {
 //   next();
 // };
 
-exports.getAllTours = async (req, res) => {
-  try {
-    // Execute Query
-    const features = new APIFeatures(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-    const tours = await features.query;
-
-    res.status(200).json({
-      status: 'success',
-      requestedAt: req.requestTime, // from middleware.
-      results: tours.length,
-      data: {
-        tours: tours,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
+const catchAsync = (fn) => {
+  return (req, res, next) => {
+    fn(req, res, next).catch((err) => next(err)); // next(err) triggers the err middleware
+  };
 };
+
+exports.getAllTours = catchAsync(async (req, res) => {
+  // Execute Query
+  const features = new APIFeatures(Tour.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const tours = await features.query;
+
+  res.status(200).json({
+    status: "success",
+    requestedAt: req.requestTime, // from middleware.
+    results: tours.length,
+    data: {
+      tours: tours,
+    },
+  });
+});
 
 exports.getTour = async (req, res) => {
   try {
     const tour = await Tour.findById(req.params.id);
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: {
         tour: tour,
       },
     });
   } catch (err) {
     res.status(400).json({
-      status: 'fail',
+      status: "fail",
       message: err,
     });
   }
 };
 
-exports.createTour = async (req, res) => {
-  try {
-    const newTour = await Tour.create(req.body);
-    res.status(201).json({
-      status: 'success',
-      data: {
-        tour: newTour,
-      },
-    });
-  } catch (err) {
-    // console.log(err);
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+exports.createTour = catchAsync(async (req, res, next) => {
+  const newTour = await Tour.create(req.body);
+  res.status(201).json({
+    status: "success",
+    data: {
+      tour: newTour,
+    },
+  });
+});
+
+{
+  /*Reference*/
+}
+
+// exports.createTour = async (req, res) => {
+//   try {
+//     const newTour = await Tour.create(req.body);
+//     res.status(201).json({
+//       status: "success",
+//       data: {
+//         tour: newTour,
+//       },
+//     });
+//   } catch (err) {
+//     // console.log(err);
+//     res.status(400).json({
+//       status: "fail",
+//       message: err,
+//     });
+//   }
+// };
 
 exports.updateTour = async (req, res) => {
   try {
@@ -102,14 +115,14 @@ exports.updateTour = async (req, res) => {
       runValidators: true,
     });
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: {
         tour,
       },
     });
   } catch (err) {
     res.status(404).json({
-      status: 'fail',
+      status: "fail",
       message: err,
     });
   }
@@ -119,12 +132,12 @@ exports.deleteTour = async (req, res) => {
   try {
     await Tour.findByIdAndDelete(req.params.id);
     res.status(204).json({
-      status: 'success',
+      status: "success",
       data: null,
     });
   } catch (err) {
     res.status(404).json({
-      status: 'fail',
+      status: "fail",
       message: err,
     });
   }
@@ -136,13 +149,13 @@ exports.getTourStats = async (req, res) => {
       { $match: { ratingsAverage: { $gte: 4.5 } } },
       {
         $group: {
-          _id: { $toUpper: '$difficulty' },
+          _id: { $toUpper: "$difficulty" },
           num: { $sum: 1 },
-          numRatings: { $sum: '$ratingsQuantity' },
-          avgRating: { $avg: '$ratingsAverage' },
-          avgPrice: { $avg: '$price' },
-          minPrice: { $min: '$price' },
-          maxPrice: { $min: '$price' },
+          numRatings: { $sum: "$ratingsQuantity" },
+          avgRating: { $avg: "$ratingsAverage" },
+          avgPrice: { $avg: "$price" },
+          minPrice: { $min: "$price" },
+          maxPrice: { $min: "$price" },
         },
       },
       { $sort: { avgPrice: -1 } },
@@ -151,12 +164,12 @@ exports.getTourStats = async (req, res) => {
     ]);
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: stats,
     });
   } catch (err) {
     res.status(404).json({
-      status: 'fail',
+      status: "fail",
       message: err,
     });
   }
@@ -168,7 +181,7 @@ exports.getMonthlyPlan = async (req, res) => {
 
     const plan = await Tour.aggregate([
       {
-        $unwind: '$startDates',
+        $unwind: "$startDates",
       },
       {
         $match: {
@@ -180,13 +193,13 @@ exports.getMonthlyPlan = async (req, res) => {
       },
       {
         $group: {
-          _id: { $month: '$startDates' },
+          _id: { $month: "$startDates" },
           numTourStarts: { $sum: 1 },
-          tours: { $push: '$name' },
+          tours: { $push: "$name" },
         },
       },
       {
-        $addFields: { month: '$_id' },
+        $addFields: { month: "$_id" },
       },
       {
         $project: {
@@ -202,16 +215,16 @@ exports.getMonthlyPlan = async (req, res) => {
     ]);
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       length: plan.length,
       data: {
         plan,
       },
     });
   } catch (err) {
-    console.log('error', err);
+    console.log("error", err);
     res.status(404).json({
-      status: 'fail',
+      status: "fail",
       message: err,
     });
   }

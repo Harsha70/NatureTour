@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-dotenv.config({ path: './config.env' });
-const app = require('./index');
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+dotenv.config({ path: "./config.env" });
+const app = require("./index");
 
 const DB = process.env.DATABASE;
 // console.log(DB);
@@ -12,11 +12,11 @@ const DB = process.env.DATABASE;
 
 mongoose.connect(DB).then((con) => {
   // console.log(con.connection);
-  console.log('DB connection established');
+  console.log("DB connection established");
 });
 
 // console.log('env-->', app.get('env'), process.env);
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
-  console.log('listening on port', port);
+  console.log("listening on port", port);
 });

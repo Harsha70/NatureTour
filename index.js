@@ -19,6 +19,7 @@ app.use(express.static(`${__dirname}/public`)); // can access the public directo
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  // console.log(req.headers);
   next(); // if you dont use next it gets stuck here
 });
 

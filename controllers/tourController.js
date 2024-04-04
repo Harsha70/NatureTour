@@ -1,6 +1,8 @@
 // const fs = require('fs');
 const Tour = require("../models/tourModel");
 const APIFeatures = require("../utils/apiFeatures");
+const AppError = require("../utils/appError");
+
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = "5";
   req.query.sort = "-ratingsAverage,price";
@@ -40,7 +42,7 @@ const catchAsync = (fn) => {
   };
 };
 
-exports.getAllTours = catchAsync(async (req, res) => {
+exports.getAllTours = catchAsync(async (req, res, next) => {
   // Execute Query
   const features = new APIFeatures(Tour.find(), req.query)
     .filter()
@@ -59,9 +61,12 @@ exports.getAllTours = catchAsync(async (req, res) => {
   });
 });
 
-exports.getTour = async (req, res) => {
+exports.getTour = async (req, res, next) => {
   try {
     const tour = await Tour.findById(req.params.id);
+    if (!tour) {
+      return next(new AppError("No tour found with that ID", 404)); // triggers error middleware
+    }
     res.status(200).json({
       status: "success",
       data: {

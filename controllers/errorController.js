@@ -12,8 +12,16 @@ const handleDuplicateFieldsDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleJsobWebTokenError = () => {
+  // console.log("handleJsobWebTokenError");
+  return new AppError("Invalid token. Please login again", 401);
+};
+const handleTokenExpiredError = () => {
+  console.log("handleTokenExpiredError");
+  return new AppError("JWT token session expired. Please login again", 401);
+};
 module.exports = (err, req, res, next) => {
-  console.log(err.stack);
+  // console.log("err.stack", err);
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
@@ -29,6 +37,8 @@ module.exports = (err, req, res, next) => {
     let error = { ...err };
     if (error.name === "CastError") error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+    if (error.name === "JsonWebTokenError") error = handleJsobWebTokenError();
+    if (error.name === "TokenExpiredError") error = handleTokenExpiredError();
     if (err.isOperational) {
       res.status(err.statusCode).json({
         status: err.status,
@@ -37,7 +47,7 @@ module.exports = (err, req, res, next) => {
       // Programming or other unknown error: dont leak error detail to client
     } else {
       // 1) Log error
-      console.log("error:", err.message);
+      // console.log("error:", err);
       //2) Send generic message
       res
         .status(500)

@@ -1,6 +1,7 @@
 const User = require("./../models/userModel");
 const jwt = require("jsonwebtoken");
 const AppError = require("./../utils/appError");
+const { promisify } = require("util");
 
 // const signToken = (id) => {
 //   jwt.sign({ id: id }, process.env.JWT_SECRET, {
@@ -70,14 +71,21 @@ exports.protect = catchAsync(async (req, res, next) => {
   ) {
     token = req.headers.authorization.split(" ")[1];
   }
-  //   console.log(token);
+  //   console.log("token: " + token, req.headers.authorization);
   if (!token) {
     return next(new AppError("You are not loggedin. please login", 401));
   }
-  // 2) varification -> Validate token
+  // 2) verification -> Validate token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  console.log("decoded: " + JSON.stringify(decoded));
 
   // 3) check if the user still exists
-
+  const freshUser = await User.findById(decoded.id);
+  if (!freshUser) {
+    return next(
+      new AppError("the user belonging to this token does no longer exist", 401)
+    );
+  }
   // 4) Check if the user changed password after the token was issued
 
   next();

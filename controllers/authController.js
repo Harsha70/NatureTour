@@ -18,8 +18,10 @@ exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
+    role: req.body.role,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    passwordChangedAt: req.body.passwordChangedAt,
   });
 
   //   console.log(process.env.JWT_EXPIRES_IN, process.env.JWT_SECRET);
@@ -83,10 +85,32 @@ exports.protect = catchAsync(async (req, res, next) => {
   const freshUser = await User.findById(decoded.id);
   if (!freshUser) {
     return next(
-      new AppError("the user belonging to this token does no longer exist", 401)
+      new AppError("The user belonging to this token does no longer exist", 401)
     );
   }
   // 4) Check if the user changed password after the token was issued
-
+  if (freshUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError("User recently changed password! Please login again", 401)
+    );
+  }
+  // grant access to protected route
+  req.user = freshUser;
   next();
 });
+
+exports.restrictTO = (...roles) => {
+  return (req, res, next) => {
+    // returning middleware function
+    // roles ['admin', 'lead-guide'], role='user
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do not have permission to perform this action", 403)
+      );
+    }
+    next();
+  };
+};
+
+exports.forgotPassword = (req, res, next) => {};
+exports.resetPassword = (req, res, next) => {};

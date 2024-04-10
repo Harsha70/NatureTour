@@ -65,10 +65,12 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 exports.getTour = async (req, res, next) => {
   try {
     //populate() is going to get data from REFERENCING only in the query and not form DB
-    const tour = await Tour.findById(req.params.id).populate({
-      path: "guides",
-      select: "-__v -passwordChangedAt",
-    });
+    const tour = await Tour.findById(req.params.id)
+      .populate({
+        path: "guides",
+        select: "-__v -passwordChangedAt",
+      })
+      .populate("reviews");
     if (!tour) {
       return next(new AppError("No tour found with that ID", 404)); // triggers error middleware
     }

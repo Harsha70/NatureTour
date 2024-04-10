@@ -1,6 +1,8 @@
 const express = require("express");
 const tourController = require("../controllers/tourController");
 const authController = require("../controllers/authController");
+const reviewController = require("../controllers/reviewController");
+
 const router = express.Router();
 // router.param('id', tourController.checkID); // param middleware
 
@@ -27,6 +29,18 @@ router
     authController.protect,
     authController.restrictTO("admin", "lead-guide"),
     deleteTour
+  );
+
+// POST /tour/12345/review
+// GET /tour/12345/review
+// GET /tour/12345/review/12345
+// nested route example
+router
+  .route("/:tourId/reviews")
+  .post(
+    authController.protect,
+    authController.restrictTO("user"),
+    reviewController.createReview
   );
 
 module.exports = router;

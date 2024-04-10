@@ -1,9 +1,25 @@
 const express = require("express");
 const tourController = require("../controllers/tourController");
 const authController = require("../controllers/authController");
-const reviewController = require("../controllers/reviewController");
+// const reviewController = require("../controllers/reviewController");
+const reviewRouter = require("../routes/reviewRoutes");
 
 const router = express.Router();
+
+// POST /tour/12345/review
+// GET /tour/12345/review
+// GET /tour/12345/review/12345
+// nested route example
+// router
+//   .route("/:tourId/reviews")
+//   .post(
+//     authController.protect,
+//     authController.restrictTO("user"),
+//     reviewController.createReview
+//   );
+
+router.use("/:tourId/reviews", reviewRouter); // we get tourId because mergeParams: true in reviewRouter
+
 // router.param('id', tourController.checkID); // param middleware
 
 // Concept: chaining multiple middleware
@@ -29,18 +45,6 @@ router
     authController.protect,
     authController.restrictTO("admin", "lead-guide"),
     deleteTour
-  );
-
-// POST /tour/12345/review
-// GET /tour/12345/review
-// GET /tour/12345/review/12345
-// nested route example
-router
-  .route("/:tourId/reviews")
-  .post(
-    authController.protect,
-    authController.restrictTO("user"),
-    reviewController.createReview
   );
 
 module.exports = router;

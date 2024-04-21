@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
+const factory = require("./handlerFactory");
 
 const catchAsync = (fn) => {
   return (req, res, next) => {
@@ -74,16 +75,7 @@ exports.getUser = (req, res) => {
   });
 };
 
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: " This route is not yet defined!",
-  });
-};
+//do NOt update password with this
+exports.updateUser = factory.updateOne(User);
 
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: " This route is not yet defined!",
-  });
-};
+exports.deleteUser = factory.deleteOne(User);

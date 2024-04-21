@@ -47,3 +47,24 @@ exports.createOne = (Model) =>
       },
     });
   });
+
+exports.getOne = (Model, populateOption) =>
+  catchAsync(async (req, res, next) => {
+    let query = Model.findById(req.params.id);
+    //populate() is going to get data from REFERENCING only in the query and not form DB
+    if (populateOption) query = query.populate(populateOption);
+    const doc = await query;
+    // Model.findById(req.params.id)
+    //     .populate({
+    //       path: "guides",
+    //       select: "-__v -passwordChangedAt",
+    //     })
+    //     .populate("reviews");
+    if (!doc) {
+      return next(new AppError("No document found with that ID", 404)); // triggers error middleware
+    }
+    res.status(200).json({
+      status: "success",
+      data: { data: doc },
+    });
+  });

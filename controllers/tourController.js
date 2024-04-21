@@ -63,35 +63,36 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getTour = async (req, res, next) => {
-  try {
-    //populate() is going to get data from REFERENCING only in the query and not form DB
-    const tour = await Tour.findById(req.params.id)
-      .populate({
-        path: "guides",
-        select: "-__v -passwordChangedAt",
-      })
-      .populate("reviews");
-    if (!tour) {
-      return next(new AppError("No tour found with that ID", 404)); // triggers error middleware
-    }
-    res.status(200).json({
-      status: "success",
-      data: {
-        tour: tour,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err,
-    });
-  }
-};
-
+exports.getTour = factory.getOne(Tour, { path: "reviews" });
 exports.createTour = factory.createOne(Tour);
 exports.updateTour = factory.updateOne(Tour);
 exports.deleteTour = factory.deleteOne(Tour);
+
+// exports.getTour = async (req, res, next) => {
+//   try {
+//     //populate() is going to get data from REFERENCING only in the query and not form DB
+//     const tour = await Tour.findById(req.params.id)
+//       .populate({
+//         path: "guides",
+//         select: "-__v -passwordChangedAt",
+//       })
+//       .populate("reviews");
+//     if (!tour) {
+//       return next(new AppError("No tour found with that ID", 404)); // triggers error middleware
+//     }
+//     res.status(200).json({
+//       status: "success",
+//       data: {
+//         tour: tour,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(400).json({
+//       status: "fail",
+//       message: err,
+//     });
+//   }
+// };
 
 /*Reference*/
 // exports.createTour = catchAsync(async (req, res, next) => {

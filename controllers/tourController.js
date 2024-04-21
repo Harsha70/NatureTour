@@ -43,26 +43,26 @@ const catchAsync = (fn) => {
   };
 };
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  // Execute Query
-  const features = new APIFeatures(Tour.find().populate("reviews"), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
-  // populating implemented in query middleware
+// exports.getAllTours = catchAsync(async (req, res, next) => {
+//   // Execute Query
+//   const features = new APIFeatures(Tour.find().populate("reviews"), req.query)
+//     .filter()
+//     .sort()
+//     .limitFields()
+//     .paginate();
+//   const tours = await features.query;
+//   // populating implemented in query middleware
 
-  res.status(200).json({
-    status: "success",
-    requestedAt: req.requestTime, // from middleware.
-    results: tours.length,
-    data: {
-      tours: tours,
-    },
-  });
-});
-
+//   res.status(200).json({
+//     status: "success",
+//     requestedAt: req.requestTime, // from middleware.
+//     results: tours.length,
+//     data: {
+//       tours: tours,
+//     },
+//   });
+// });
+exports.getAllTours = factory.getAll(Tour);
 exports.getTour = factory.getOne(Tour, { path: "reviews" });
 exports.createTour = factory.createOne(Tour);
 exports.updateTour = factory.updateOne(Tour);

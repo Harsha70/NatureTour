@@ -248,3 +248,5 @@ exports.getMonthlyPlan = async (req, res) => {
     });
   }
 };
+
+exports.getToursWithin = async (req, res, next) => {};

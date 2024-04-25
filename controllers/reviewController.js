@@ -7,17 +7,22 @@ const catchAsync = (fn) => {
   };
 };
 
-exports.getAllReviews = catchAsync(async (req, res, next) => {
-  const reviews = await Review.find();
-  // parent referencing populate implemented in query middleware
-  res.status(200).json({
-    status: "success",
-    results: reviews.length,
-    data: {
-      reviews,
-    },
-  });
-});
+exports.getAllReviews = factory.getAll(Review);
+
+// exports.getAllReviews = catchAsync(async (req, res, next) => {
+//   let filter = {};
+//   if (req.params.tourId) filter = { tour: req.params.tourId };
+//   console.log(filter);
+//   const reviews = await Review.find(filter);
+//   // parent referencing populate implemented in query middleware
+//   res.status(200).json({
+//     status: "success",
+//     results: reviews.length,
+//     data: {
+//       reviews,
+//     },
+//   });
+// });
 
 exports.setTourUserIds = (req, res, next) => {
   // Allow nested routes
@@ -37,6 +42,7 @@ exports.setTourUserIds = (req, res, next) => {
 //   });
 // });
 
+exports.getReview = factory.getOne(Review);
 exports.createReview = factory.createOne(Review);
 exports.deleteReview = factory.deleteOne(Review);
 exports.updateReview = factory.updateOne(Review);

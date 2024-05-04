@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
@@ -5,18 +6,25 @@ const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
+const cookieParser = require("cookie-parser");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 const reviewRouter = require("./routes/reviewRoutes");
+const viewRouter = require("./routes/viewRoutes");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 const app = express();
 
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "views"));
+
+// app.use(express.static(`${__dirname}/public`)); // can access the public directory
+app.use(express.static(path.join(__dirname, "public")));
 // 1) Global Middleware
 // set security http headers
-app.use(helmet());
+// app.use(helmet());
 
 console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === "development") {
@@ -31,6 +39,7 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 
 app.use(express.json());
+app.use(cookieParser());
 // Data sanitization against NOSQL query injection
 app.use(mongoSanitize());
 // Data sanitization against XSS
@@ -49,11 +58,9 @@ app.use(
   })
 );
 
-app.use(express.static(`${__dirname}/public`)); // can access the public directory
-
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
-  // console.log(req.headers);
+  // console.log(req.headers, req.cookies);
   next(); // if you dont use next it gets stuck here
 });
 
@@ -63,6 +70,8 @@ app.use((req, res, next) => {
 // });
 
 // 3) Routes
+
+app.use("/", viewRouter);
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRouter);

@@ -12,7 +12,6 @@ const login = async (email, password) => {
         password,
       },
     });
-    // const res = await result.json();
     console.log("login", res, email, password);
 
     if (res.data.status === "success") {

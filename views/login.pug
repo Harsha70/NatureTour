@@ -7,9 +7,9 @@ block content
       form.form.form--login
         .form__group
           label.form__label(for='email') Email address
-          input#email.form__input(type='email', value='laura@example.com', placeholder='you@example.com', required)
+          input#email.form__input(type='email', value='laura@example.com', placeholder='you@example.com', required, readonly)
         .form__group.ma-bt-md
           label.form__label(for='password') Password
-          input#password.form__input(type='password', placeholder='••••••••', required, minlength='8')
+          input#password.form__input(type='password', value='pass1234' placeholder='pass1234', required, minlength='8', readonly)
         .form__group
           button.btn.btn--green Login

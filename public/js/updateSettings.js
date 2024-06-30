@@ -4,13 +4,15 @@
 
 console.log("updatesetting");
 // type is either 'password' or 'data'
+const updateMyPassword = "https://naturetour.onrender.com/api/v1/users/updateMyPassword";
+const updateMe = "https://naturetour.onrender.com/api/v1/users/updateMe";
 const updateSettings = async (data, type) => {
   try {
-    const url =
-      type === "password"
-        ? "http://localhost:3000/api/v1/users/updateMyPassword"
-        : "http://localhost:3000/api/v1/users/updateMe";
-
+    // const url =
+    //   type === "password"
+    //     ? "http://localhost:3000/api/v1/users/updateMyPassword"
+    //     : "http://localhost:3000/api/v1/users/updateMe";
+const url = type === "password" ? updateMyPassword : updateMe;
     const res = await axios({
       method: "PATCH",
       url,

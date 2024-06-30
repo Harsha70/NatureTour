@@ -1,4 +1,4 @@
-const Produrl = "https://naturetour.onrender.com/api/v1/users/login";
+const Produrl = "https://naturetour.onrender.com/api/v1/users/logout";
 const logout = async () => {
   try {
     const res = await axios({
